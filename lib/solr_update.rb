@@ -1,0 +1,2 @@
+module SolrUpdate
+end

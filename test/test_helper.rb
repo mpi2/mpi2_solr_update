@@ -32,5 +32,5 @@ require 'mpi2_solr_update'
 class SolrUpdate::Queue::Item
 end
 
-class SolrUpdate::CommandFactory
+class SolrUpdate::DocFactory
 end

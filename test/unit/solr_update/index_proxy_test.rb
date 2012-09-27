@@ -35,11 +35,13 @@ class SolrUpdate::IndexProxyTest < ActiveSupport::TestCase
       docs = [
         {
           'id' => rand(999),
-          'type' => 'test'
+          'type' => 'test',
+          'mgi_accession_id' => 'MGI:99999999991'
         },
         {
           'id' => rand(999),
-          'type' => 'test'
+          'type' => 'test',
+          'mgi_accession_id' => 'MGI:99999999992'
         }
       ]
 

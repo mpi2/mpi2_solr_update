@@ -16,17 +16,16 @@ if ! Object.const_defined?(:Rails)
   require 'ostruct'
   require 'logger'
 
-  logger = Logger.new(GEM_ROOT + '/log/test.log')
-
-  ::Rails = OpenStruct.new(
-    :env => 'test',
-    :test? => true,
-    :root => GEM_ROOT,
-    :logger => logger
-  )
+  class ::Rails
+    module VERSION
+      MAJOR = 2
+    end
+    def self.env; 'test'; end
+    def self.test?; true; end
+    def self.root; GEM_ROOT; end
+    def self.logger; @@logger ||= Logger.new(GEM_ROOT + '/log/test.log'); end
+  end
 end
-
-puts Rails.root
 
 require 'mpi2_solr_update'
 

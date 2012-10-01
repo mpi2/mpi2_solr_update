@@ -9,10 +9,10 @@ class SolrUpdate::Queue
 
   def self.run
     proxy = SolrUpdate::IndexProxy::Allele.new
-    SolrUpdate::Queue::Item.process_in_order do |reference, command_type|
-      if command_type == 'update'
+    SolrUpdate::Queue::Item.process_in_order do |reference, action|
+      if action == 'update'
         command = SolrUpdate::CommandFactory.create_solr_command_to_update_in_index(reference)
-      elsif command_type == 'delete'
+      elsif action == 'delete'
         command = SolrUpdate::CommandFactory.create_solr_command_to_delete_from_index(reference)
       end
       proxy.update(command)

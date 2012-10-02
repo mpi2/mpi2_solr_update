@@ -20,16 +20,19 @@ class SolrUpdate::QueueTest < ActiveSupport::TestCase
     end
 
     should 'be run and process items in order they were added' do
-      command1 = stub('command1')
-      command2 = stub('command2')
+      reference1 = stub('reference1')
+      reference2 = stub('reference2')
+      reference3 = stub('reference3')
 
-      SolrUpdate::Queue::Item.expects(:process_in_order).with().multiple_yields([4, 'update'], [5, 'delete'])
+      SolrUpdate::Queue::Item.expects(:process_in_order).with().multiple_yields(
+        [reference1, 'update'],
+        [reference2, 'delete'],
+        [reference3, 'update']
+      )
 
-      SolrUpdate::CommandFactory.expects(:create_solr_command_to_update_in_index).with(4).returns(command1)
-      SolrUpdate::CommandFactory.expects(:create_solr_command_to_delete_from_index).with(5).returns(command2)
-
-      SolrUpdate::IndexProxy::Allele.any_instance.expects(:update).with(command1)
-      SolrUpdate::IndexProxy::Allele.any_instance.expects(:update).with(command2)
+      SolrUpdate::ActionPerformer.expects(:do).with(reference1, 'update')
+      SolrUpdate::ActionPerformer.expects(:do).with(reference2, 'delete')
+      SolrUpdate::ActionPerformer.expects(:do).with(reference3, 'update')
 
       SolrUpdate::Queue.run
     end

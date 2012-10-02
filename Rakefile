@@ -8,3 +8,5 @@ end
 Rake::Task['test:solr:update'].comment = 'Run mpi2_solr_update unit tests'
 
 task :test => 'test:solr:update'
+
+task :default => :test

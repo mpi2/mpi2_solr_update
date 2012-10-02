@@ -3,6 +3,7 @@ require 'solr_update/util'
 require 'solr_update/config'
 require 'solr_update/index_proxy'
 require 'solr_update/queue'
+require 'solr_update/action_performer'
 require 'solr_update/command_factory'
 
 if Rails::VERSION::MAJOR <= 2

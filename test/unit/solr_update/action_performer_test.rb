@@ -28,11 +28,11 @@ class SolrUpdate::ActionPerformerTest < ActiveSupport::TestCase
     end
 
     should 'have an empty after_update that may be optionally overridden' do
-      assert_nothing_raised { SolrUpdate::ActionPerformer.after_update }
+      assert_nothing_raised { SolrUpdate::ActionPerformer.after_update('reference') }
     end
 
     should 'have an empty after_delete that may be optionally overridden' do
-      assert_nothing_raised { SolrUpdate::ActionPerformer.after_delete }
+      assert_nothing_raised { SolrUpdate::ActionPerformer.after_delete('reference') }
     end
 
   end

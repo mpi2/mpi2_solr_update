@@ -14,10 +14,10 @@ class SolrUpdate::ActionPerformer
     end
   end
 
-  def self.after_update
+  def self.after_update(reference)
   end
 
-  def self.after_delete
+  def self.after_delete(reference)
   end
 
 end

@@ -36,12 +36,14 @@ class SolrUpdate::IndexProxyTest < ActiveSupport::TestCase
         {
           'id' => rand(999),
           'type' => 'test',
-          'mgi_accession_id' => 'MGI:99999999991'
+          'mgi_accession_id' => 'MGI:99999999991',
+          'allele_id' => 55
         },
         {
           'id' => rand(999),
           'type' => 'test',
-          'mgi_accession_id' => 'MGI:99999999992'
+          'mgi_accession_id' => 'MGI:99999999992',
+          'allele_id' => 56
         }
       ]
 

@@ -16,7 +16,14 @@ class SolrUpdate::Queue
         command = SolrUpdate::CommandFactory.create_solr_command_to_delete_from_index(reference)
       end
       proxy.update(command)
+      @@after_update_hook.call(reference, action) if @@after_update_hook
     end
+  end
+
+  @@after_update_hook = nil
+
+  def self.after_update_hook(&block)
+    @@after_update_hook = block
   end
 
 end

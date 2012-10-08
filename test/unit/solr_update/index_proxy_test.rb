@@ -3,7 +3,7 @@ require 'test_helper'
 class SolrUpdate::IndexProxyTest < ActiveSupport::TestCase
 
   context 'SolrUpdate::IndexProxy::Gene' do
-    should 'retrieve marker_symbol for an mgi_accession_id from a solr index' do
+    should_if_solr 'retrieve marker_symbol for an mgi_accession_id from a solr index' do
       index_proxy = SolrUpdate::IndexProxy::Gene.new
       assert_equal 'Cbx1', index_proxy.get_marker_symbol('MGI:105369')
       assert_equal 'Tead1', index_proxy.get_marker_symbol('MGI:101876')
@@ -16,7 +16,7 @@ class SolrUpdate::IndexProxyTest < ActiveSupport::TestCase
   end
 
   context 'SolrUpdate::IndexProxy::Allele' do
-    should 'send update commands to index and then gets them: #search and #update' do
+    should_if_solr 'send update commands to index and then gets them: #search and #update' do
       docs = [
         {
           'id' => rand(999),

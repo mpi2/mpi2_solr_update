@@ -29,6 +29,10 @@ end
 
 require 'mpi2_solr_update'
 
+class ActiveSupport::TestCase
+  include SolrUpdate::TestHelp
+end
+
 class SolrUpdate::Queue::Item
 end
 

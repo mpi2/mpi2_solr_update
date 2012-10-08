@@ -5,6 +5,7 @@ require 'solr_update/net_http_proxy'
 require 'solr_update/index_proxy'
 require 'solr_update/queue'
 require 'solr_update/command_factory'
+require 'solr_update/test_help'
 
 if Rails::VERSION::MAJOR <= 2
   SolrUpdate::Config.init_config

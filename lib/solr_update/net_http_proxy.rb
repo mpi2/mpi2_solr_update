@@ -1,6 +1,6 @@
 class SolrUpdate::NetHttpProxy
   def self.should_use_proxy_for?(host)
-    ENV['NO_PROXY'].delete(' ').split(',').each do |no_proxy_host_part|
+    ENV['NO_PROXY'].to_s.delete(' ').split(',').each do |no_proxy_host_part|
       if host.include?(no_proxy_host_part)
         return false
       end

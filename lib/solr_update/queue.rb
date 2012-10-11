@@ -7,9 +7,13 @@ class SolrUpdate::Queue
     SolrUpdate::Queue::Item.add(object_or_reference, 'delete')
   end
 
-  def self.run
+  def self.run(args = {})
+    args.symbolize_keys!
+
     proxy = SolrUpdate::IndexProxy::Allele.new
-    SolrUpdate::Queue::Item.process_in_order do |reference, action|
+    limit = args[:limit] || SolrUpdate::Config['queue_run_limit']
+
+    SolrUpdate::Queue::Item.process_in_order(:limit => limit) do |reference, action|
       if action == 'update'
         command = SolrUpdate::CommandFactory.create_solr_command_to_update_in_index(reference)
       elsif action == 'delete'

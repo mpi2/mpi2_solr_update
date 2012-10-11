@@ -32,7 +32,7 @@ class SolrUpdate::QueueTest < ActiveSupport::TestCase
 
       used_within_block = stub('used_within_block')
 
-      SolrUpdate::Queue::Item.expects(:process_in_order).with().multiple_yields([ref1, 'update'], [ref2, 'delete'])
+      SolrUpdate::Queue::Item.expects(:process_in_order).multiple_yields([ref1, 'update'], [ref2, 'delete'])
 
       SolrUpdate::Queue.after_update_hook { used_within_block.used }
 
@@ -47,6 +47,46 @@ class SolrUpdate::QueueTest < ActiveSupport::TestCase
       used_within_block.expects(:used).in_sequence(seq)
 
       SolrUpdate::Queue.run
+    end
+
+    should 'be allow number of items to be processed to be configurable via config file' do
+      begin
+        SolrUpdate::IndexProxy::Allele.any_instance.stubs(:update)
+        SolrUpdate::DocFactory.stubs(:create_solr_command_to_delete_from_index)
+        SolrUpdate::DocFactory.stubs(:create_solr_command_to_update_in_index)
+
+        class SolrUpdate::Config; @@config['queue_run_limit'] = 5; end
+        SolrUpdate::Queue::Item.expects(:process_in_order).with(:limit => 5)
+        SolrUpdate::Queue.run
+
+        class SolrUpdate::Config; @@config.delete 'queue_run_limit'; end
+        SolrUpdate::Queue::Item.expects(:process_in_order).with(:limit => nil)
+        SolrUpdate::Queue.run
+
+        class SolrUpdate::Config; @@config.delete 'queue_run_limit'; end
+        SolrUpdate::Queue::Item.expects(:process_in_order).with(:limit => nil)
+        SolrUpdate::Queue.run
+      ensure
+        SolrUpdate::Config.init_config
+        SolrUpdate::DocFactory.unstub(:create_solr_command_to_delete_from_index)
+        SolrUpdate::IndexProxy::Allele.any_instance.unstub(:update)
+      end
+    end
+
+    should 'be allow number of items to be processed to be configurable via argument, overriding config file' do
+      begin
+        SolrUpdate::IndexProxy::Allele.any_instance.stubs(:update)
+        SolrUpdate::DocFactory.stubs(:create_solr_command_to_delete_from_index)
+        SolrUpdate::DocFactory.stubs(:create_solr_command_to_update_in_index)
+
+        class SolrUpdate::Config; @@config['queue_run_limit'] = 5; end
+        SolrUpdate::Queue::Item.expects(:process_in_order).with(:limit => 10)
+        SolrUpdate::Queue.run(:limit => 10)
+      ensure
+        SolrUpdate::Config.init_config
+        SolrUpdate::DocFactory.unstub(:create_solr_command_to_delete_from_index)
+        SolrUpdate::IndexProxy::Allele.any_instance.unstub(:update)
+      end
     end
 
   end

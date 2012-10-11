@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mpi2_solr_update (1.0.0)
+    mpi2_solr_update (1.1.0)
       activesupport
       json_pure
 

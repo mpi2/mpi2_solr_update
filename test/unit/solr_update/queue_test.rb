@@ -78,10 +78,13 @@ class SolrUpdate::QueueTest < ActiveSupport::TestCase
         SolrUpdate::IndexProxy::Allele.any_instance.stubs(:update)
         SolrUpdate::DocFactory.stubs(:create_solr_command_to_delete_from_index)
         SolrUpdate::DocFactory.stubs(:create_solr_command_to_update_in_index)
-
         class SolrUpdate::Config; @@config['queue_run_limit'] = 5; end
+
         SolrUpdate::Queue::Item.expects(:process_in_order).with(:limit => 10)
         SolrUpdate::Queue.run(:limit => 10)
+
+        SolrUpdate::Queue::Item.expects(:process_in_order).with(:limit => nil)
+        SolrUpdate::Queue.run(:limit => nil)
       ensure
         SolrUpdate::Config.init_config
         SolrUpdate::DocFactory.unstub(:create_solr_command_to_delete_from_index)

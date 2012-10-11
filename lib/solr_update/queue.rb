@@ -11,7 +11,11 @@ class SolrUpdate::Queue
     args.symbolize_keys!
 
     proxy = SolrUpdate::IndexProxy::Allele.new
-    limit = args[:limit] || SolrUpdate::Config['queue_run_limit']
+    if args.has_key?(:limit)
+      limit = args[:limit]
+    else
+      limit = SolrUpdate::Config['queue_run_limit']
+    end
 
     SolrUpdate::Queue::Item.process_in_order(:limit => limit) do |reference, action|
       if action == 'update'

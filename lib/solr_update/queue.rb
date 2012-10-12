@@ -1,4 +1,13 @@
 class SolrUpdate::Queue
+  class BulkError < SolrUpdate::Error
+    def initialize(message, exceptions)
+      super(message)
+      @exceptions = exceptions
+    end
+
+    attr_reader :exceptions
+  end
+
   def self.enqueue_for_update(object_or_reference)
     SolrUpdate::Queue::Item.add(object_or_reference, 'update')
   end
@@ -17,14 +26,30 @@ class SolrUpdate::Queue
       limit = SolrUpdate::Config['queue_run_limit']
     end
 
+    exceptions = []
+
     SolrUpdate::Queue::Item.process_in_order(:limit => limit) do |reference, action|
-      if action == 'update'
-        command = SolrUpdate::CommandFactory.create_solr_command_to_update_in_index(reference)
-      elsif action == 'delete'
-        command = SolrUpdate::CommandFactory.create_solr_command_to_delete_from_index(reference)
+      begin
+        if action == 'update'
+          command = SolrUpdate::CommandFactory.create_solr_command_to_update_in_index(reference)
+        elsif action == 'delete'
+          command = SolrUpdate::CommandFactory.create_solr_command_to_delete_from_index(reference)
+        end
+        proxy.update(command)
+        @@after_update_hook.call(reference, action) if @@after_update_hook
+      rescue SolrUpdate::Error => e
+        exceptions << e
       end
-      proxy.update(command)
-      @@after_update_hook.call(reference, action) if @@after_update_hook
+    end
+
+    if exceptions.present?
+      message = "Errors during SOLR update:\n"
+
+      exceptions.each do |e|
+        message += "\n#{e.class.name}: #{e.message}\n"
+      end
+
+      raise BulkError.new(message, exceptions)
     end
   end
 

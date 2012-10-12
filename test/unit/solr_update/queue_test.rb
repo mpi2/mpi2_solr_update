@@ -91,10 +91,10 @@ class SolrUpdate::QueueTest < ActiveSupport::TestCase
     end
 
     should 'store up SolrUpdate::Error-derived exceptions from items that failed to process and print them out en-masse' do
-      ref1 = stub('ref1')
-      ref2 = stub('ref2')
-      ref3 = stub('ref3')
-      ref4 = stub('ref4')
+      ref1 = {'type' => 'test', 'id' => 9001}
+      ref2 = {'type' => 'test', 'id' => 9002}
+      ref3 = {'type' => 'test', 'id' => 9003}
+      ref4 = {'type' => 'test', 'id' => 9004}
 
       command = {'commit' => {}}
 

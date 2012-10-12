@@ -38,18 +38,18 @@ class SolrUpdate::Queue
         proxy.update(command)
         @@after_update_hook.call(reference, action) if @@after_update_hook
       rescue SolrUpdate::Error => e
-        exceptions << e
+        exceptions << [e, reference]
       end
     end
 
     if exceptions.present?
       message = "Errors during SOLR update:\n"
 
-      exceptions.each do |e|
-        message += "\n#{e.class.name}: #{e.message}\n"
+      exceptions.each do |e, reference|
+        message += "\n#{e.class.name} for reference #{reference.inspect}: #{e.message}\n#{e.backtrace.join("\n")}\n"
       end
 
-      raise BulkError.new(message, exceptions)
+      raise BulkError.new(message, exceptions.map(&:first))
     end
   end
 

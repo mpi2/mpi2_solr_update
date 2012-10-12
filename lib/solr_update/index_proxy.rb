@@ -1,5 +1,7 @@
 module SolrUpdate::IndexProxy
-  class LookupError < RuntimeError; end
+  class LookupError < SolrUpdate::Error; end
+
+  class UpdateError < SolrUpdate::Error; end
 
   def self.get_uri_for(name)
     return URI.parse(SolrUpdate::Config.fetch('index_proxy').fetch(name))
@@ -47,7 +49,7 @@ module SolrUpdate::IndexProxy
 
     def handle_http_response_error(http_response, request = nil)
       if ! http_response.kind_of? Net::HTTPSuccess
-        raise "Error during update_json: #{http_response.message}\n#{http_response.body}\n\nRequest body:#{request.body}"
+        raise SolrUpdate::UpdateError, "Error during update_json: #{http_response.message}\n#{http_response.body}\n\nRequest body:#{request.body}"
       end
    end
     protected :handle_http_response_error

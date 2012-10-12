@@ -1,4 +1,5 @@
 require 'solr_update'
+require 'solr_update/error'
 require 'solr_update/util'
 require 'solr_update/config'
 require 'solr_update/net_http_proxy'

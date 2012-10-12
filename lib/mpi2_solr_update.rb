@@ -14,5 +14,9 @@ else
     initializer "solr_update.railtie.configure_rails_initialization" do
       SolrUpdate::Config.init_config
     end
+
+    rake_tasks do
+      load File.expand_path(File.dirname(__FILE__) + '/tasks/solr.rake')
+    end
   end
 end

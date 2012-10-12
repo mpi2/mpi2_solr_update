@@ -28,17 +28,19 @@ class SolrUpdate::Queue
 
     exceptions = []
 
-    SolrUpdate::Queue::Item.process_in_order(:limit => limit) do |reference, action|
+    SolrUpdate::Queue::Item.process_in_order(:limit => limit) do |item|
       begin
-        if action == 'update'
-          command = SolrUpdate::CommandFactory.create_solr_command_to_update_in_index(reference)
-        elsif action == 'delete'
-          command = SolrUpdate::CommandFactory.create_solr_command_to_delete_from_index(reference)
+        if item.action == 'update'
+          command = SolrUpdate::CommandFactory.create_solr_command_to_update_in_index(item.reference)
+        elsif item.action == 'delete'
+          command = SolrUpdate::CommandFactory.create_solr_command_to_delete_from_index(item.reference)
         end
         proxy.update(command)
-        @@after_update_hook.call(reference, action) if @@after_update_hook
+        @@after_update_hook.call(item.reference, item.action) if @@after_update_hook
+        item.destroy
       rescue SolrUpdate::Error => e
-        exceptions << [e, reference]
+        exceptions << [e, item.reference]
+      ensure
       end
     end
 

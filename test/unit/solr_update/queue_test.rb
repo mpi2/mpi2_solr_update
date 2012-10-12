@@ -25,16 +25,19 @@ class SolrUpdate::QueueTest < ActiveSupport::TestCase
       SolrUpdate::Queue.enqueue_for_delete(object3)
     end
 
-    should 'be run and process items in order they were added' do
+    should 'be run and process items in order they were added which are then deleted' do
       command1 = stub('command1')
       command2 = stub('command2')
 
       ref1 = stub('ref1')
       ref2 = stub('ref2')
 
+      item1 = stub('item1', :reference => ref1, :action => 'update')
+      item2 = stub('item2', :reference => ref2, :action => 'delete')
+
       used_within_block = stub('used_within_block')
 
-      SolrUpdate::Queue::Item.expects(:process_in_order).multiple_yields([ref1, 'update'], [ref2, 'delete'])
+      SolrUpdate::Queue::Item.expects(:process_in_order).multiple_yields(item1, item2)
 
       SolrUpdate::Queue.after_update_hook { used_within_block.used }
 
@@ -43,10 +46,12 @@ class SolrUpdate::QueueTest < ActiveSupport::TestCase
       SolrUpdate::CommandFactory.expects(:create_solr_command_to_update_in_index).with(ref1).returns(command1).in_sequence(seq)
       SolrUpdate::IndexProxy::Allele.any_instance.expects(:update).with(command1).in_sequence(seq)
       used_within_block.expects(:used).in_sequence(seq)
+      item1.expects(:destroy).in_sequence(seq)
 
       SolrUpdate::CommandFactory.expects(:create_solr_command_to_delete_from_index).with(ref2).returns(command2).in_sequence(seq)
       SolrUpdate::IndexProxy::Allele.any_instance.expects(:update).with(command2).in_sequence(seq)
       used_within_block.expects(:used).in_sequence(seq)
+      item2.expects(:destroy).in_sequence(seq)
 
       SolrUpdate::Queue.run
     end
@@ -90,15 +95,22 @@ class SolrUpdate::QueueTest < ActiveSupport::TestCase
       end
     end
 
-    should 'store up SolrUpdate::Error-derived exceptions from items that failed to process and print them out en-masse' do
+    should 'store up SolrUpdate::Error-derived exceptions from items that failed to process and print them out en-masse; failed items are not destroyed' do
       ref1 = {'type' => 'test', 'id' => 9001}
       ref2 = {'type' => 'test', 'id' => 9002}
       ref3 = {'type' => 'test', 'id' => 9003}
       ref4 = {'type' => 'test', 'id' => 9004}
 
+      item1 = stub('item1', :reference => ref1, :action => 'update')
+      item2 = stub('item2', :reference => ref2, :action => 'update')
+      item3 = stub('item3', :reference => ref3, :action => 'update')
+      item4 = stub('item4', :reference => ref4, :action => 'update')
+
+      item2.expects(:destroy)
+
       command = {'commit' => {}}
 
-      SolrUpdate::Queue::Item.expects(:process_in_order).multiple_yields([ref1, 'update'], [ref2, 'update'], [ref3, 'update'], [ref4, 'update'])
+      SolrUpdate::Queue::Item.expects(:process_in_order).multiple_yields(item1, item2, item3, item4)
       SolrUpdate::CommandFactory.stubs(:create_solr_command_to_update_in_index).raises(SolrUpdate::IndexProxy::UpdateError).then.returns(command).then.raises(SolrUpdate::IndexProxy::LookupError).then.raises(SolrUpdate::IndexProxy::UpdateError)
       SolrUpdate::IndexProxy::Allele.any_instance.expects(:update).with(command)
 

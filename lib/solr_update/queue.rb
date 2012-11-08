@@ -19,7 +19,6 @@ class SolrUpdate::Queue
   def self.run(args = {})
     args.symbolize_keys!
 
-    proxy = SolrUpdate::IndexProxy::Allele.new
     if args.has_key?(:limit)
       limit = args[:limit]
     else
@@ -30,17 +29,9 @@ class SolrUpdate::Queue
 
     SolrUpdate::Queue::Item.process_in_order(:limit => limit) do |item|
       begin
-        if item.action == 'update'
-          command = SolrUpdate::CommandFactory.create_solr_command_to_update_in_index(item.reference)
-        elsif item.action == 'delete'
-          command = SolrUpdate::CommandFactory.create_solr_command_to_delete_from_index(item.reference)
-        end
-        proxy.update(command)
-        @@after_update_hook.call(item.reference, item.action) if @@after_update_hook
-        item.destroy
+        process_item(item)
       rescue SolrUpdate::Error => e
         exceptions << [e, item.reference]
-      ensure
       end
     end
 
@@ -53,6 +44,18 @@ class SolrUpdate::Queue
 
       raise BulkError.new(message, exceptions.map(&:first))
     end
+  end
+
+  def self.process_item(item)
+    proxy = SolrUpdate::IndexProxy::Allele.new
+    if item.action == 'update'
+      command = SolrUpdate::CommandFactory.create_solr_command_to_update_in_index(item.reference)
+    elsif item.action == 'delete'
+      command = SolrUpdate::CommandFactory.create_solr_command_to_delete_from_index(item.reference)
+    end
+    proxy.update(command)
+    @@after_update_hook.call(item.reference, item.action) if @@after_update_hook
+    item.destroy
   end
 
   @@after_update_hook = nil

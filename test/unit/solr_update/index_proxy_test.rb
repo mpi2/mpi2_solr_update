@@ -11,7 +11,7 @@ class SolrUpdate::IndexProxyTest < ActiveSupport::TestCase
 
     should 'raise error if gene not found' do
       index_proxy = SolrUpdate::IndexProxy::Gene.new
-      assert_raise(SolrUpdate::IndexProxy::LookupError) { index_proxy.get_marker_symbol('MGI:XXXXXXXXXXXXX') }
+      assert_raise(SolrUpdate::LookupError) { index_proxy.get_marker_symbol('MGI:XXXXXXXXXXXXX') }
     end
   end
 

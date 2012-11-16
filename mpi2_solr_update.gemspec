@@ -2,7 +2,7 @@ require 'date'
 
 Gem::Specification.new do |s|
   s.name        = 'mpi2_solr_update'
-  s.version     = '1.4.0'
+  s.version     = '1.5.0'
   s.date        = Date.today.to_s
   s.summary     = "Manage updates from an app to a Solr index"
   s.description = "Manage updates from an app to a Solr index."

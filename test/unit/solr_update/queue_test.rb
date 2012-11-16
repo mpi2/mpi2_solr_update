@@ -81,7 +81,7 @@ class SolrUpdate::QueueTest < ActiveSupport::TestCase
       item4 = stub('item4', :reference => ref4, :action => 'update')
 
       SolrUpdate::Queue::Item.expects(:process_in_order).multiple_yields(item1, item2, item3, item4)
-      SolrUpdate::Queue.stubs(:process_item).raises(SolrUpdate::IndexProxy::UpdateError).then.returns(nil).then.raises(SolrUpdate::IndexProxy::LookupError).then.raises(SolrUpdate::IndexProxy::UpdateError)
+      SolrUpdate::Queue.stubs(:process_item).raises(SolrUpdate::UpdateError).then.returns(nil).then.raises(SolrUpdate::LookupError).then.raises(SolrUpdate::UpdateError)
 
       begin
         SolrUpdate::Queue.run
@@ -90,7 +90,7 @@ class SolrUpdate::QueueTest < ActiveSupport::TestCase
                 'BulkError should have been raised'
       rescue SolrUpdate::Queue::BulkError => e
         exception_kinds = e.exceptions.map(&:class)
-        assert_equal [SolrUpdate::IndexProxy::UpdateError, SolrUpdate::IndexProxy::LookupError, SolrUpdate::IndexProxy::UpdateError], exception_kinds
+        assert_equal [SolrUpdate::UpdateError, SolrUpdate::LookupError, SolrUpdate::UpdateError], exception_kinds
         assert_match /UpdateError.+LookupError.+UpdateError/m, e.message
       end
     end

@@ -1,8 +1,4 @@
 module SolrUpdate::IndexProxy
-  class LookupError < SolrUpdate::Error; end
-
-  class UpdateError < SolrUpdate::Error; end
-
   def self.get_uri_for(name)
     return URI.parse(SolrUpdate::Config.fetch('index_proxy').fetch(name))
   end
@@ -62,7 +58,7 @@ module SolrUpdate::IndexProxy
       docs = search(:q => "mgi_accession_id:\"#{mgi_accession_id}\"")
       Rails.logger.debug("GENELOOKUP: Index lookup being performed on mgi_accession_id:\"#{mgi_accession_id}\"")
       if ! docs.first
-        raise LookupError, "Could not look up marker symbol for mgi_accession_id:\"#{mgi_accession_id}\""
+        raise SolrUpdate::LookupError, "Could not look up marker symbol for mgi_accession_id:\"#{mgi_accession_id}\""
       end
       return docs.first.fetch('marker_symbol')
     end
